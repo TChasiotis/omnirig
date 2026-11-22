@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" prefHeight="600.0" prefWidth="800.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.omnirig.controllers.LoginController">
+   <children>
+      <Label text="OmniRig">
+         <font>
+            <Font name="System Bold" size="48.0" />
+         </font>
+      </Label>
+      <Label text="Hardware Management System" textFill="#555555">
+         <font>
+            <Font size="18.0" />
+         </font>
+         <VBox.margin>
+            <Insets bottom="30.0" />
+         </VBox.margin>
+      </Label>
+      
+      <VBox alignment="CENTER" maxWidth="300.0" spacing="10.0">
+         <children>
+            <TextField fx:id="usernameField" promptText="Username Υπαλλήλου" />
+            <PasswordField fx:id="passwordField" promptText="Κωδικός" />
+            <Button fx:id="loginButton" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleEmployeeLogin" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Είσοδος Υπαλλήλου">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </Button>
+            <Label fx:id="errorLabel" textFill="RED" />
+         </children>
+      </VBox>
+      
+      <Button mnemonicParsing="false" onAction="#handleCustomerContinue" text="Συνέχεια ως Πελάτης (Guest)" underline="true">
+         <VBox.margin>
+            <Insets top="40.0" />
+         </VBox.margin>
+      </Button>
+   </children>
+</VBox>
