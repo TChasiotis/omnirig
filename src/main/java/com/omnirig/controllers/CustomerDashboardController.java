@@ -4,6 +4,7 @@ import com.omnirig.models.Category;
 import com.omnirig.models.Product;
 import com.omnirig.services.MockProductService;
 import com.omnirig.services.ProductService;
+import com.omnirig.services.IconResolver;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -89,8 +90,7 @@ public class CustomerDashboardController {
         Label catBadge = new Label(p.getCategory().name());
         catBadge.getStyleClass().add("card-category");
 
-        StackPane imageBox = createProductImageBox(p.getId(), 140);
-
+        StackPane imageBox = createProductImageBox(p, 140);
         // Τίτλος
         Label title = new Label(p.getName());
         title.setWrapText(true);
@@ -133,20 +133,20 @@ public class CustomerDashboardController {
         });
 
         card.getChildren().addAll(catBadge, imageBox, title, specsLbl, spacer, priceRow, addBtn);
-        
+
         // Κλικ στην κάρτα -> Άνοιγμα αναλυτικών specs
         card.setOnMouseClicked(e -> showProductDetails(p));
 
         return card;
     }
-    private StackPane createProductImageBox(int productId, double size) {
+    private StackPane createProductImageBox(Product p, double size) {
     StackPane box = new StackPane();
     box.setPrefHeight(size);
     box.setMaxHeight(size);
     box.setAlignment(Pos.CENTER);
     box.setStyle("-fx-background-color: #F8FAFC; -fx-background-radius: 8; -fx-padding: 8;");
 
-    String path = "/com/omnirig/images/products/" + productId + ".png";
+    String path = IconResolver.getIconPath(p);
     InputStream is = getClass().getResourceAsStream(path);
 
     if (is != null) {
@@ -157,7 +157,7 @@ public class CustomerDashboardController {
         imageView.setSmooth(true);
         box.getChildren().add(imageView);
     } else {
-        Label placeholder = new Label("No Image");
+        Label placeholder = new Label("No Icon");
         placeholder.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 12px;");
         box.getChildren().add(placeholder);
     }
