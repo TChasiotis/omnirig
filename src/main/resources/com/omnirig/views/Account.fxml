@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true"
+            vbarPolicy="AS_NEEDED"
+            style="-fx-background-color: transparent; -fx-background: #F8FAFC;"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.omnirig.controllers.AccountController">
+   <content>
+      <StackPane alignment="TOP_CENTER" style="-fx-background-color: #F8FAFC;">
+         <children>
+            <VBox maxWidth="960.0" spacing="20.0">
+               <padding>
+                  <Insets top="24.0" right="32.0" bottom="40.0" left="32.0" />
+               </padding>
+               <children>
+
+                  <!-- TOP NAV -->
+                  <HBox alignment="CENTER_LEFT" spacing="14.0">
+                     <children>
+                        <Button text="←  Πίσω στον Κατάλογο" onAction="#handleBack"
+                                style="-fx-background-color: #FFFFFF; -fx-text-fill: #334155; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 8; -fx-border-color: #E2E8F0; -fx-border-radius: 8; -fx-cursor: hand;" />
+                        <Label text="Ο Λογαριασμός μου"
+                               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" />
+                     </children>
+                  </HBox>
+
+                  <!-- PROFILE HEADER CARD -->
+                  <HBox alignment="CENTER_LEFT" spacing="18.0"
+                        style="-fx-background-color: #FFFFFF; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14;">
+                     <padding>
+                        <Insets top="20.0" right="24.0" bottom="20.0" left="24.0" />
+                     </padding>
+                     <children>
+                        <StackPane prefWidth="58.0" prefHeight="58.0" minWidth="58.0" minHeight="58.0"
+                                   style="-fx-background-color: #2563EB; -fx-background-radius: 29;">
+                           <children>
+                              <Label fx:id="avatarInitialsLbl" text="ΓΠ"
+                                     style="-fx-text-fill: #FFFFFF; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                           </children>
+                        </StackPane>
+
+                        <VBox spacing="3.0">
+                           <children>
+                              <Label fx:id="fullNameLbl" text="Όνομα Επώνυμο"
+                                     style="-fx-font-size: 19px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" />
+                              <Label fx:id="emailHeaderLbl" text="email@omnirig.gr"
+                                     style="-fx-font-size: 13px; -fx-text-fill: #64748B;" />
+                           </children>
+                        </VBox>
+
+                        <Region HBox.hgrow="ALWAYS" />
+
+                        <Button text="Αποσύνδεση" onAction="#handleLogout"
+                                style="-fx-background-color: #F1F5F9; -fx-text-fill: #334155; -fx-font-weight: bold; -fx-padding: 9 18; -fx-background-radius: 8; -fx-cursor: hand;" />
+                     </children>
+                  </HBox>
+
+                  <!-- TABS BAR -->
+                  <HBox spacing="10.0" alignment="CENTER_LEFT">
+                     <children>
+                        <Button fx:id="tabProfileBtn" text="Στοιχεία Προφίλ" onAction="#showProfileTab" />
+                        <Button fx:id="tabOrdersBtn" text="Οι Παραγγελίες μου" onAction="#showOrdersTab" />
+                        <Button fx:id="tabBuildsBtn" text="Αποθηκευμένα Builds" onAction="#showBuildsTab" />
+                     </children>
+                  </HBox>
+
+                  <!-- TAB CONTENT CONTAINER -->
+                  <VBox fx:id="tabContentBox" spacing="18.0" />
+
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
+   </content>
+</ScrollPane>
