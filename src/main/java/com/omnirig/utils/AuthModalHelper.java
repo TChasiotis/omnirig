@@ -20,10 +20,11 @@ public class AuthModalHelper {
 
     // --- LOGIN MODAL ---
     public static void showLoginModal(
-            StackPane rootStack,
-            AuthService authService,
-            Consumer<CustomerProfile> onLoginSuccess,
-            Runnable onSwitchToRegister) {
+        StackPane rootStack,
+        AuthService authService,
+        Consumer<CustomerProfile> onLoginSuccess,
+        Runnable onSwitchToRegister,
+        Runnable onAdminLogin) {
 
         if (rootStack == null) return;
 
@@ -33,7 +34,9 @@ public class AuthModalHelper {
         HBox header = createHeader("Σύνδεση στο OmniRig", () -> dismissBackdrop(rootStack, backdrop));
 
         Label hint = new Label("Demo: demo@omnirig.gr  /  1234");
+        Label hint2 = new Label("Admin: admin@omnirig.gr  /  admin123");
         hint.setStyle("-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-size: 11px; -fx-padding: 6 10; -fx-background-radius: 6;");
+        hint2.setStyle("-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-size: 11px; -fx-padding: 6 10; -fx-background-radius: 6;");
 
         TextField emailField = createField("name@example.com", "");
         PasswordField passField = new PasswordField();
@@ -58,11 +61,19 @@ public class AuthModalHelper {
         Runnable dismiss = () -> dismissBackdrop(rootStack, backdrop);
 
         Runnable attemptLogin = () -> {
-            if (emailField.getText().isBlank() || passField.getText().isBlank()) {
+            String email = emailField.getText().trim();
+            String pass = passField.getText().trim();
+
+            if (email.isBlank() || pass.isBlank()) {
                 showError(errorLbl, "Συμπλήρωσε email και κωδικό.");
                 return;
             }
-            Optional<CustomerProfile> user = authService.login(emailField.getText(), passField.getText());
+            if (AdminConfig.isAdminCredentials(email, pass)) {
+                dismiss.run();
+                if (onAdminLogin != null) onAdminLogin.run();
+                return;
+            }
+            Optional<CustomerProfile> user = authService.login(email, pass);
             if (user.isPresent()) {
                 dismiss.run();
                 if (onLoginSuccess != null) onLoginSuccess.accept(user.get());
@@ -80,7 +91,7 @@ public class AuthModalHelper {
         });
 
         VBox fields = new VBox(6, fieldLabel("Email"), emailField, fieldLabel("Κωδικός πρόσβασης"), passField);
-        card.getChildren().addAll(header, hint, fields, errorLbl, loginBtn, footerRow);
+        card.getChildren().addAll(header, hint, hint2, fields, errorLbl, loginBtn, footerRow);
         showBackdrop(rootStack, backdrop, card);
     }
 

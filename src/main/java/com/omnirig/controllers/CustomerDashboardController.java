@@ -324,7 +324,8 @@ public class CustomerDashboardController {
                 accountButton.setText(user.firstName());
                 if (afterLoginAction != null) afterLoginAction.run();
             },
-            () -> openRegisterModal(afterLoginAction)
+            () -> openRegisterModal(afterLoginAction),
+            this::openAdminPanel
         );
     }
 
@@ -340,4 +341,17 @@ public class CustomerDashboardController {
             () -> openLoginModal(afterRegisterAction)
         );
     }
+
+    private void openAdminPanel() {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/omnirig/views/AdminPanel.fxml"));
+        ScrollPane adminPane = loader.load();
+
+        AdminPanelController controller = loader.getController();
+        controller.init(rootStack, productService, this::showCatalogView);
+        setCenterView(adminPane);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
 }

@@ -67,4 +67,35 @@ public class Product {
         Object val = specs.get(key);
         return (val instanceof List<?>) ? (List<String>) val : Collections.emptyList();
     }
+
+    // Κενός constructor (απαραίτητος και για το Hibernate Entity)
+    public Product() {
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public void setName(String name) {
+        if (name == null || name.isBlank()) {
+            this.brand = "";
+            this.model = "";
+            return;
+        }
+        String[] parts = name.trim().split("\\s+", 2);
+        this.brand = parts[0];
+        this.model = parts.length > 1 ? parts[1] : "";
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
 }

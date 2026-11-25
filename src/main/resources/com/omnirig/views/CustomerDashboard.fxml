@@ -65,7 +65,7 @@
                      <Label fx:id="sectionTitle" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0F172A;"
                            text="Όλα τα Προϊόντα" />
                      <!-- Οριζόντια Κατηγορίες (Pills) -->
-                     <FlowPane fx:id="categoryPillsBox" hgap="8.0" vgap="8.0" />
+                     <FlowPane fx:id="categoryPillsBox" hgap="8.0" vgap="8.0" alignment="CENTER" />
 
                      <!-- Δυναμική Μπάρα Φίλτρων & Ταξινόμησης -->
                      <FlowPane fx:id="filterBarBox" hgap="10.0" vgap="8.0" alignment="TOP_CENTER"
