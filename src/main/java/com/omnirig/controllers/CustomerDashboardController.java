@@ -348,10 +348,13 @@ public class CustomerDashboardController {
         ScrollPane adminPane = loader.load();
 
         AdminPanelController controller = loader.getController();
-        controller.init(rootStack, productService, this::showCatalogView);
+        controller.init(rootStack, productService, () -> {
+            handleCategorySelected(selectedCategory);
+        });
         setCenterView(adminPane);
     } catch (IOException e) {
         e.printStackTrace();
     }
+    
 }
 }
