@@ -8,6 +8,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import javafx.stage.StageStyle;
+
 import java.util.*;
 
 import static com.omnirig.services.CompatibilityEngine.getInt;
@@ -19,8 +21,13 @@ public final class PcBuilderPickerDialog {
 
     public static Optional<Product> show(Category cat, List<Product> compatible) {
         Dialog<Product> dialog = new Dialog<>();
-        dialog.setTitle("Επιλογή: " + cat.getDisplayName());
-        dialog.setHeaderText("Συμβατά εξαρτήματα (" + compatible.size() + ") — Ταξινόμηση & Specs");
+        dialog.initStyle(StageStyle.UNDECORATED);
+        dialog.setHeaderText("Επιλογή: " + cat.getDisplayName() + " (" + compatible.size() + " συμβατά)");
+        dialog.getDialogPane().setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #CBD5E1; " +
+            "-fx-border-width: 1.5;"
+        );
 
         ComboBox<String> sortBox = new ComboBox<>();
         sortBox.getItems().addAll(getSortOptionsForCategory(cat));

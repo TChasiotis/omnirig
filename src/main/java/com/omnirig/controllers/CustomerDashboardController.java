@@ -33,6 +33,11 @@ public class CustomerDashboardController {
         "M 12 10 m -3.5 0 a 3.5 3.5 0 1 0 7 0 a 3.5 3.5 0 1 0 -7 0 " +
         "M 5 20 C 5 16.5 8 14.5 12 14.5 C 16 14.5 19 16.5 19 20";
 
+    private static final String SVG_CART =
+        "M 3 5 L 6 5 L 8.5 14.5 L 18.5 14.5 L 20.5 7.5 L 7 7.5 " +
+        "M 9.5 18.5 m -1.3 0 a 1.3 1.3 0 1 0 2.6 0 a 1.3 1.3 0 1 0 -2.6 0 " +
+        "M 17.5 18.5 m -1.3 0 a 1.3 1.3 0 1 0 2.6 0 a 1.3 1.3 0 1 0 -2.6 0";
+
     @FXML private StackPane rootStack;
     @FXML private BorderPane mainPane;
     @FXML private ScrollPane catalogScroll;
@@ -65,6 +70,7 @@ public class CustomerDashboardController {
         windowControls.attach();
 
         setupAccountButtonIcon();
+        setupCartButtonIcon();
 
         filterBarHelper = new CatalogFilterBarHelper(
             categoryPillsBox,
@@ -81,10 +87,23 @@ public class CustomerDashboardController {
 
     private void setupAccountButtonIcon() {
         if (accountButton == null) return;
+        accountButton.setGraphic(createNavIcon(SVG_USER, "#E2E8F0"));
+        accountButton.setGraphicTextGap(7);
+        accountButton.setMinWidth(Region.USE_PREF_SIZE);
+    }
+
+    private void setupCartButtonIcon() {
+        if (cartButton == null) return;
+        cartButton.setGraphic(createNavIcon(SVG_CART, "#E2E8F0"));
+        cartButton.setGraphicTextGap(7);
+        cartButton.setMinWidth(Region.USE_PREF_SIZE);
+    }
+
+    private StackPane createNavIcon(String svgPath, String strokeHex) {
         SVGPath svg = new SVGPath();
-        svg.setContent(SVG_USER);
+        svg.setContent(svgPath);
         svg.setFill(Color.TRANSPARENT);
-        svg.setStroke(Color.web("#E2E8F0"));
+        svg.setStroke(Color.web(strokeHex));
         svg.setStrokeWidth(1.8);
         svg.setStrokeLineCap(StrokeLineCap.ROUND);
         svg.setStrokeLineJoin(StrokeLineJoin.ROUND);
@@ -95,10 +114,7 @@ public class CustomerDashboardController {
         iconBox.setPrefSize(18, 18);
         iconBox.setMinSize(18, 18);
         iconBox.setMaxSize(18, 18);
-
-        accountButton.setGraphic(iconBox);
-        accountButton.setGraphicTextGap(7);
-        accountButton.setMinWidth(Region.USE_PREF_SIZE);
+        return iconBox;
     }
 
     // --- WINDOW CONTROLS ---
@@ -343,18 +359,17 @@ public class CustomerDashboardController {
     }
 
     private void openAdminPanel() {
-    try {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/omnirig/views/AdminPanel.fxml"));
-        ScrollPane adminPane = loader.load();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/omnirig/views/AdminPanel.fxml"));
+            ScrollPane adminPane = loader.load();
 
-        AdminPanelController controller = loader.getController();
-        controller.init(rootStack, productService, () -> {
-            handleCategorySelected(selectedCategory);
-        });
-        setCenterView(adminPane);
-    } catch (IOException e) {
-        e.printStackTrace();
+            AdminPanelController controller = loader.getController();
+            controller.init(rootStack, productService, () -> {
+                handleCategorySelected(selectedCategory);
+            });
+            setCenterView(adminPane);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    
-}
 }
