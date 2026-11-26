@@ -61,6 +61,31 @@
   -fx-background-color: #059669;
 }
 
+/* Custom Window Controls */
+.win-btn {
+  -fx-background-color: transparent;
+  -fx-min-width: 34px;
+  -fx-min-height: 30px;
+  -fx-background-radius: 6px;
+  -fx-cursor: hand;
+}
+.win-icon {
+  -fx-fill: transparent;
+  -fx-stroke: #cbd5e1;
+  -fx-stroke-width: 1.4;
+  -fx-stroke-line-cap: round;
+  -fx-stroke-line-join: round;
+}
+.win-btn:hover {
+  -fx-background-color: rgba(255, 255, 255, 0.14);
+}
+.win-btn:hover .win-icon {
+  -fx-stroke: #ffffff;
+}
+.win-btn-close:hover {
+  -fx-background-color: #ef4444;
+}
+
 /* Sidebar */
 .sidebar {
   -fx-background-color: #ffffff;
@@ -99,13 +124,14 @@
   -fx-background-radius: 12;
   -fx-border-color: #e2e8f0;
   -fx-border-radius: 12;
+  -fx-border-width: 1;
   -fx-padding: 16;
   -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.05), 8, 0, 0, 2);
   -fx-cursor: hand;
 }
 .product-card:hover {
-  -fx-border-color: #2563eb;
-  -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.14), 14, 0, 0, 4);
+  -fx-border-color: #93c5fd;
+  -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.14), 16, 0, 0, 6);
 }
 .card-category {
   -fx-background-color: #f1f5f9;
@@ -138,4 +164,41 @@
   -fx-text-fill: #b91c1c;
   -fx-font-size: 11px;
   -fx-font-weight: bold;
+}
+
+/* Μοντέρνο λεπτό Scrollbar */
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+  -fx-background-color: transparent;
+}
+.scroll-bar:vertical .thumb,
+.scroll-bar:horizontal .thumb {
+  -fx-background-color: #cbd5e1;
+  -fx-background-radius: 10px;
+}
+.scroll-bar:vertical .thumb:hover {
+  -fx-background-color: #94a3b8;
+}
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+  -fx-background-color: transparent;
+  -fx-padding: 0;
+}
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+  -fx-shape: "";
+  -fx-padding: 0;
+}
+.logo-omni {
+  -fx-font-family: "Trebuchet MS";
+  -fx-font-size: 24px;
+  -fx-font-weight: normal;
+  -fx-text-fill: #ffffff;
+}
+
+.logo-rig {
+  -fx-font-family: "Trebuchet MS";
+  -fx-font-size: 24px;
+  -fx-font-weight: bold;
+  -fx-text-fill: #38bdf8;
 }

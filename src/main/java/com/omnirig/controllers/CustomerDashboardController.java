@@ -2,69 +2,142 @@ package com.omnirig.controllers;
 
 import com.omnirig.models.Category;
 import com.omnirig.models.Product;
+import com.omnirig.models.SavedBuild;
+import com.omnirig.services.AuthService;
+import com.omnirig.services.MockAuthService;
 import com.omnirig.services.MockProductService;
 import com.omnirig.services.ProductService;
-import com.omnirig.services.IconResolver;
+import com.omnirig.utils.AuthModalHelper;
+import com.omnirig.utils.CatalogFilterBarHelper;
+import com.omnirig.utils.ModalOverlayHelper;
+import com.omnirig.utils.ProductUiFactory;
+import com.omnirig.utils.WindowControlsHelper;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import java.io.InputStream;
+import java.util.*;
 
 public class CustomerDashboardController {
 
+    private static final String SVG_USER =
+        "M 12 10 m -3.5 0 a 3.5 3.5 0 1 0 7 0 a 3.5 3.5 0 1 0 -7 0 " +
+        "M 5 20 C 5 16.5 8 14.5 12 14.5 C 16 14.5 19 16.5 19 20";
+
+    private static final String SVG_CART =
+        "M 3 5 L 6 5 L 8.5 14.5 L 18.5 14.5 L 20.5 7.5 L 7 7.5 " +
+        "M 9.5 18.5 m -1.3 0 a 1.3 1.3 0 1 0 2.6 0 a 1.3 1.3 0 1 0 -2.6 0 " +
+        "M 17.5 18.5 m -1.3 0 a 1.3 1.3 0 1 0 2.6 0 a 1.3 1.3 0 1 0 -2.6 0";
+
+    @FXML private StackPane rootStack;
+    @FXML private BorderPane mainPane;
+    @FXML private ScrollPane catalogScroll;
+    @FXML private HBox topBar;
+    @FXML private Button btnMinimize;
+    @FXML private Button btnMaximize;
+    @FXML private Button btnClose;
+
     @FXML private TextField searchNameField;
-    @FXML private VBox categoryBox;
+    @FXML private FlowPane categoryPillsBox;
+    @FXML private FlowPane filterBarBox;
+    @FXML private Button accountButton;
     @FXML private FlowPane productGrid;
     @FXML private Label sectionTitle;
     @FXML private Button cartButton;
 
     private final ProductService productService = new MockProductService();
+    private final AuthService authService = new MockAuthService();
+    private final Map<Product, Integer> cart = new LinkedHashMap<>();
+    private final Map<String, List<SavedBuild>> savedBuildsByEmail = new HashMap<>();
+    private CheckoutController.CustomerProfile loggedInUser = null;
+
     private Category selectedCategory = null;
-    private int cartCount = 0;
+    private WindowControlsHelper windowControls;
+    private CatalogFilterBarHelper filterBarHelper;
 
     @FXML
     public void initialize() {
-        buildCategorySidebar();
+        windowControls = new WindowControlsHelper(mainPane, topBar, btnMinimize, btnMaximize, btnClose);
+        windowControls.attach();
+
+        setupAccountButtonIcon();
+        setupCartButtonIcon();
+
+        filterBarHelper = new CatalogFilterBarHelper(
+            categoryPillsBox,
+            filterBarBox,
+            this::handleCategorySelected,
+            this::applySearchAndFilters
+        );
+        filterBarHelper.buildCategoryPills();
+        filterBarHelper.rebuildFiltersFor(null, productService.getAllProducts());
+
         renderProducts(productService.getAllProducts());
+        updateCartButtonLabel();
     }
 
-    private void buildCategorySidebar() {
-        Button allBtn = createCategoryButton("Όλα τα Προϊόντα", null);
-        allBtn.getStyleClass().add("cat-btn-active");
-        categoryBox.getChildren().add(allBtn);
-
-        for (Category cat : Category.values()) {
-            categoryBox.getChildren().add(createCategoryButton(cat.getDisplayName(), cat));
-        }
+    private void setupAccountButtonIcon() {
+        if (accountButton == null) return;
+        accountButton.setGraphic(createNavIcon(SVG_USER, "#E2E8F0"));
+        accountButton.setGraphicTextGap(7);
+        accountButton.setMinWidth(Region.USE_PREF_SIZE);
     }
 
-    private Button createCategoryButton(String label, Category category) {
-        Button btn = new Button(label);
-        btn.setMaxWidth(Double.MAX_VALUE);
-        btn.getStyleClass().add("cat-btn");
-        btn.setOnAction(e -> {
-            selectedCategory = category;
-            sectionTitle.setText(label);
-            categoryBox.getChildren().forEach(node -> node.getStyleClass().remove("cat-btn-active"));
-            btn.getStyleClass().add("cat-btn-active");
-            handleSearch();
-        });
-        return btn;
+    private void setupCartButtonIcon() {
+        if (cartButton == null) return;
+        cartButton.setGraphic(createNavIcon(SVG_CART, "#E2E8F0"));
+        cartButton.setGraphicTextGap(7);
+        cartButton.setMinWidth(Region.USE_PREF_SIZE);
+    }
+
+    private StackPane createNavIcon(String svgPath, String strokeHex) {
+        SVGPath svg = new SVGPath();
+        svg.setContent(svgPath);
+        svg.setFill(Color.TRANSPARENT);
+        svg.setStroke(Color.web(strokeHex));
+        svg.setStrokeWidth(1.8);
+        svg.setStrokeLineCap(StrokeLineCap.ROUND);
+        svg.setStrokeLineJoin(StrokeLineJoin.ROUND);
+        svg.setScaleX(0.75);
+        svg.setScaleY(0.75);
+
+        StackPane iconBox = new StackPane(new Group(svg));
+        iconBox.setPrefSize(18, 18);
+        iconBox.setMinSize(18, 18);
+        iconBox.setMaxSize(18, 18);
+        return iconBox;
+    }
+
+    // --- WINDOW CONTROLS ---
+    @FXML private void handleMinimize() { windowControls.minimize(); }
+    @FXML private void handleMaximize() { windowControls.toggleMaximize(); }
+    @FXML private void handleClose()    { windowControls.close(); }
+    @FXML private void handleLogoClick(){ showCatalogView(); }
+
+    // --- CATALOG & FILTERS ---
+    private void handleCategorySelected(Category category) {
+        selectedCategory = category;
+        sectionTitle.setText(category == null ? "Όλα τα Προϊόντα" : category.getDisplayName());
+        List<Product> catProducts = (category == null)
+            ? productService.getAllProducts()
+            : productService.getProductsByCategory(category);
+        filterBarHelper.rebuildFiltersFor(category, catProducts);
+        showCatalogView();
+        applySearchAndFilters();
+    }
+
+    private void applySearchAndFilters() {
+        List<Product> searched = productService.searchProducts(searchNameField.getText(), null, selectedCategory);
+        renderProducts(filterBarHelper.applyFiltersAndSort(searched));
     }
 
     private void renderProducts(List<Product> products) {
@@ -76,177 +149,225 @@ public class CustomerDashboardController {
             return;
         }
         for (Product p : products) {
-            productGrid.getChildren().add(createProductCard(p));
+            productGrid.getChildren().add(
+                ProductUiFactory.createProductCard(p, this::addToCart, this::showProductDetails)
+            );
         }
     }
 
-    private VBox createProductCard(Product p) {
-        VBox card = new VBox(10);
-        card.setPrefWidth(260);
-        card.setMinHeight(210);
-        card.getStyleClass().add("product-card");
-
-        // Badge κατηγορίας
-        Label catBadge = new Label(p.getCategory().name());
-        catBadge.getStyleClass().add("card-category");
-
-        StackPane imageBox = createProductImageBox(p, 140);
-        // Τίτλος
-        Label title = new Label(p.getName());
-        title.setWrapText(true);
-        title.setPrefHeight(42);
-        title.getStyleClass().add("card-title");
-
-        // 2 βασικά specs για preview
-        String previewSpecs = p.getSpecs().entrySet().stream()
-            .limit(2)
-            .map(entry -> formatKey(entry.getKey()) + ": " + entry.getValue())
-            .reduce((a, b) -> a + "  •  " + b)
-            .orElse("");
-        Label specsLbl = new Label(previewSpecs);
-        specsLbl.setWrapText(true);
-        specsLbl.getStyleClass().add("card-specs");
-
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, Priority.ALWAYS);
-
-        // Τιμή + Διαθεσιμότητα
-        HBox priceRow = new HBox();
-        priceRow.setAlignment(Pos.CENTER_LEFT);
-        Label priceLbl = new Label(String.format("%.2f €", p.getPrice()));
-        priceLbl.getStyleClass().add("card-price");
-        Region midSpacer = new Region();
-        HBox.setHgrow(midSpacer, Priority.ALWAYS);
-        Label stockLbl = new Label(p.getStock() > 0 ? "Διαθέσιμο (" + p.getStock() + ")" : "Εξαντλήθηκε");
-        stockLbl.getStyleClass().add(p.getStock() > 0 ? "badge-instock" : "badge-outstock");
-        priceRow.getChildren().addAll(priceLbl, midSpacer, stockLbl);
-
-        // Κουμπί προσθήκης στο καλάθι
-        Button addBtn = new Button("Προσθήκη στο καλάθι");
-        addBtn.setMaxWidth(Double.MAX_VALUE);
-        addBtn.getStyleClass().add("btn-primary");
-        addBtn.setDisable(p.getStock() == 0);
-        addBtn.setOnAction(e -> {
-            e.consume();
-            cartCount++;
-            cartButton.setText("Καλάθι (" + cartCount + ")");
-        });
-
-        card.getChildren().addAll(catBadge, imageBox, title, specsLbl, spacer, priceRow, addBtn);
-
-        // Κλικ στην κάρτα -> Άνοιγμα αναλυτικών specs
-        card.setOnMouseClicked(e -> showProductDetails(p));
-
-        return card;
+    private void showCatalogView() {
+        if (mainPane.getCenter() != catalogScroll) {
+            setCenterView(catalogScroll);
+        }
     }
-    private StackPane createProductImageBox(Product p, double size) {
-    StackPane box = new StackPane();
-    box.setPrefHeight(size);
-    box.setMaxHeight(size);
-    box.setAlignment(Pos.CENTER);
-    box.setStyle("-fx-background-color: #F8FAFC; -fx-background-radius: 8; -fx-padding: 8;");
-
-    String path = IconResolver.getIconPath(p);
-    InputStream is = getClass().getResourceAsStream(path);
-
-    if (is != null) {
-        ImageView imageView = new ImageView(new Image(is));
-        imageView.setFitWidth(size - 16);
-        imageView.setFitHeight(size - 16);
-        imageView.setPreserveRatio(true);
-        imageView.setSmooth(true);
-        box.getChildren().add(imageView);
-    } else {
-        Label placeholder = new Label("No Icon");
-        placeholder.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 12px;");
-        box.getChildren().add(placeholder);
-    }
-
-    return box;
-}
 
     private void showProductDetails(Product p) {
-        Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setTitle(p.getName());
-
-        VBox root = new VBox(14);
-        root.setPadding(new Insets(24));
-        root.setStyle("-fx-background-color: #FFFFFF;");
-
-        Label cat = new Label(p.getCategory().getDisplayName());
-        cat.setStyle("-fx-text-fill: #2563EB; -fx-font-weight: bold; -fx-font-size: 12px;");
-
-        Label title = new Label(p.getName());
-        title.setWrapText(true);
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0F172A;");
-
-        Label price = new Label(String.format("%.2f €   |   Απόθεμα: %d τεμ.", p.getPrice(), p.getStock()));
-        price.setStyle("-fx-font-size: 15px; -fx-text-fill: #334155;");
-
-        // Πίνακας όλων των specs
-        GridPane grid = new GridPane();
-        grid.setHgap(20);
-        grid.setVgap(8);
-        grid.setPadding(new Insets(10, 0, 10, 0));
-
-        int row = 0;
-        for (Map.Entry<String, Object> entry : p.getSpecs().entrySet()) {
-            Label k = new Label(formatKey(entry.getKey()));
-            k.setStyle("-fx-font-weight: bold; -fx-text-fill: #475569;");
-            Label v = new Label(String.valueOf(entry.getValue()));
-            v.setStyle("-fx-text-fill: #0F172A;");
-            grid.add(k, 0, row);
-            grid.add(v, 1, row);
-            row++;
-        }
-
-        ScrollPane scroll = new ScrollPane(grid);
-        scroll.setFitToWidth(true);
-        scroll.setPrefHeight(340);
-        scroll.setStyle("-fx-background-color: transparent; -fx-background: #FFFFFF;");
-
-        Button closeBtn = new Button("Κλείσιμο");
-        closeBtn.setOnAction(e -> dialog.close());
-        closeBtn.setStyle("-fx-background-color: #0F172A; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 6; -fx-cursor: hand;");
-
-        root.getChildren().addAll(cat, title, price, new Separator(), scroll, closeBtn);
-        dialog.setScene(new Scene(root, 480, 560));
-        dialog.showAndWait();
+        ScrollPane details = ProductUiFactory.createProductDetailsView(p, this::showCatalogView, this::addToCart);
+        setCenterView(details);
     }
 
-    private String formatKey(String key) {
-        String spaced = key.replace("_", " ");
-        return spaced.substring(0, 1).toUpperCase() + spaced.substring(1);
+    private void setCenterView(Node view) {
+        mainPane.setCenter(view);
+        ProductUiFactory.playViewEnterAnimation(view);
     }
 
     @FXML
     public void handleSearch() {
-        String keyword = searchNameField.getText();
-        renderProducts(productService.searchProducts(keyword, null, selectedCategory));
+        showCatalogView();
+        applySearchAndFilters();
+    }
+
+    // --- CART & CHECKOUT ---
+    private void addToCart(Product p) {
+        cart.merge(p, 1, Integer::sum);
+        updateCartButtonLabel();
+    }
+
+    private void updateCartButtonLabel() {
+        int count = cart.values().stream().mapToInt(Integer::intValue).sum();
+        cartButton.setText("Καλάθι (" + count + ")");
     }
 
     @FXML
+    public void handleOpenCart() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/omnirig/views/Cart.fxml"));
+            ScrollPane cartPane = loader.load();
+
+            CartController controller = loader.getController();
+            controller.init(cart, this::showCatalogView, this::updateCartButtonLabel, this::handleCheckoutEntry);
+            setCenterView(cartPane);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleCheckoutEntry() {
+        if (loggedInUser != null) {
+            openCheckoutView(loggedInUser);
+            return;
+        }
+        ModalOverlayHelper.showCheckoutAuthModal(
+            rootStack,
+            () -> openLoginModal(() -> openCheckoutView(loggedInUser)),
+            () -> openRegisterModal(() -> openCheckoutView(loggedInUser)),
+            () -> openCheckoutView(null)
+        );
+    }
+
+    private void openCheckoutView(CheckoutController.CustomerProfile user) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/omnirig/views/Checkout.fxml"));
+            ScrollPane checkoutPane = loader.load();
+
+            CheckoutController controller = loader.getController();
+            controller.init(cart, user, this::handleOpenCart, () -> {
+                updateCartButtonLabel();
+                showCatalogView();
+            });
+            setCenterView(checkoutPane);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // --- PC BUILDER & SAVED BUILDS ---
+    @FXML
     public void handleOpenPcBuilder() {
-        System.out.println("Άνοιγμα PC Builder (επόμενο βήμα!)");
+        openPcBuilderWith(null);
+    }
+
+    private void openPcBuilderWith(Map<Category, Product> initialParts) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/omnirig/views/PcBuilder.fxml"));
+            ScrollPane builderPane = loader.load();
+
+            PcBuilderController controller = loader.getController();
+            controller.init(
+                rootStack,
+                productService,
+                this::showCatalogView,
+                products -> {
+                    for (Product p : products) addToCart(p);
+                    showCatalogView();
+                },
+                (buildName, parts) -> {
+                    if (loggedInUser == null) {
+                        openLoginModal(() -> saveBuildForCurrentUser(buildName, parts));
+                    } else {
+                        saveBuildForCurrentUser(buildName, parts);
+                    }
+                }
+            );
+            if (initialParts != null) {
+                controller.loadBuild(initialParts);
+            }
+            setCenterView(builderPane);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveBuildForCurrentUser(String buildName, Map<Category, Product> parts) {
+        if (loggedInUser == null) return;
+        double total = parts.values().stream().mapToDouble(Product::getPrice).sum();
+        SavedBuild sb = new SavedBuild(UUID.randomUUID().toString(), buildName, parts, total);
+        savedBuildsByEmail
+            .computeIfAbsent(loggedInUser.email().toLowerCase(), k -> new ArrayList<>())
+            .add(sb);
+    }
+
+    // --- AUTH & ACCOUNT PAGE ---
+    @FXML
+    private void handleAccountClick() {
+        if (loggedInUser == null) {
+            openLoginModal(null);
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/omnirig/views/Account.fxml"));
+            ScrollPane accountPane = loader.load();
+
+            List<SavedBuild> userBuilds = savedBuildsByEmail
+                .computeIfAbsent(loggedInUser.email().toLowerCase(), k -> new ArrayList<>());
+
+            AccountController controller = loader.getController();
+            controller.init(
+                authService,
+                loggedInUser,
+                userBuilds,
+                this::showCatalogView,
+                updatedUser -> {
+                    loggedInUser = updatedUser;
+                    accountButton.setText(updatedUser.firstName());
+                },
+                build -> openPcBuilderWith(build.parts()),
+                build -> userBuilds.remove(build),
+                () -> {
+                    loggedInUser = null;
+                    accountButton.setText("Λογαριασμός");
+                    showCatalogView();
+                },
+                () -> {
+                    savedBuildsByEmail.remove(loggedInUser.email().toLowerCase());
+                    loggedInUser = null;
+                    accountButton.setText("Λογαριασμός");
+                    showCatalogView();
+                }
+            );
+            setCenterView(accountPane);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     public void handleLogin() {
-        switchScene("/com/omnirig/views/Login.fxml", "OmniRig - Σύνδεση");
+        openLoginModal(null);
     }
 
     @FXML
     public void handleRegister() {
-        System.out.println("Πάτησε Εγγραφή");
+        openRegisterModal(null);
     }
 
-    private void switchScene(String fxmlPath, String title) {
+    private void openLoginModal(Runnable afterLoginAction) {
+        AuthModalHelper.showLoginModal(
+            rootStack,
+            authService,
+            user -> {
+                loggedInUser = user;
+                accountButton.setText(user.firstName());
+                if (afterLoginAction != null) afterLoginAction.run();
+            },
+            () -> openRegisterModal(afterLoginAction),
+            this::openAdminPanel
+        );
+    }
+
+    private void openRegisterModal(Runnable afterRegisterAction) {
+        AuthModalHelper.showRegisterModal(
+            rootStack,
+            authService,
+            user -> {
+                loggedInUser = user;
+                accountButton.setText(user.firstName());
+                if (afterRegisterAction != null) afterRegisterAction.run();
+            },
+            () -> openLoginModal(afterRegisterAction)
+        );
+    }
+
+    private void openAdminPanel() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
-            Stage stage = (Stage) searchNameField.getScene().getWindow();
-            stage.setTitle(title);
-            stage.setScene(new Scene(root, 1200, 750));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/omnirig/views/AdminPanel.fxml"));
+            ScrollPane adminPane = loader.load();
+
+            AdminPanelController controller = loader.getController();
+            controller.init(rootStack, productService, () -> {
+                handleCategorySelected(selectedCategory);
+            });
+            setCenterView(adminPane);
         } catch (IOException e) {
             e.printStackTrace();
         }

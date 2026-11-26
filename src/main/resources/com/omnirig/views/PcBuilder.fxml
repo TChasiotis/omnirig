@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fx:id="scrollPane"
+            fitToWidth="true"
+            vbarPolicy="AS_NEEDED"
+            style="-fx-background-color: transparent; -fx-background: #F8FAFC;"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.omnirig.controllers.PcBuilderController">
+   <content>
+      <StackPane alignment="TOP_CENTER" style="-fx-background-color: #F8FAFC;">
+         <children>
+            <VBox maxWidth="980.0" spacing="18.0">
+               <padding>
+                  <Insets top="24.0" right="32.0" bottom="40.0" left="32.0" />
+               </padding>
+               <children>
+
+                  <!-- HEADER -->
+                  <HBox alignment="CENTER_LEFT" spacing="14.0">
+                     <children>
+                        <Button text="←" onAction="#handleBack" minWidth="-Infinity"
+                                style="-fx-background-color: #FFFFFF; -fx-text-fill: #334155; -fx-font-weight: bold; -fx-padding: 8 14; -fx-background-radius: 8; -fx-border-color: #E2E8F0; -fx-border-radius: 8; -fx-cursor: hand;" />
+                        <VBox spacing="2.0">
+                           <children>
+                              <Label text="PC Builder"
+                                     style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" />
+                              <Label text="Έλεγχος συμβατότητας σε πραγματικό χρόνο"
+                                     style="-fx-font-size: 12px; -fx-text-fill: #64748B;" />
+                           </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="Auto-Build (Budget)" onAction="#handleBudgetAutoBuild" minWidth="-Infinity"
+                                style="-fx-background-color: #0F172A; -fx-text-fill: #38BDF8; -fx-font-weight: bold; -fx-padding: 9 16; -fx-background-radius: 8; -fx-cursor: hand;" />
+                        <Button text="Καθαρισμός" onAction="#handleClear" minWidth="-Infinity"
+                                style="-fx-background-color: #FEE2E2; -fx-text-fill: #B91C1C; -fx-font-weight: bold; -fx-padding: 9 16; -fx-background-radius: 8; -fx-cursor: hand;" />
+                     </children>
+                  </HBox>
+
+                  <!-- DARK SUMMARY BAR -->
+                  <HBox alignment="CENTER_LEFT" spacing="24.0"
+                        style="-fx-background-color: #0F172A; -fx-background-radius: 14;">
+                     <padding>
+                        <Insets top="18.0" right="22.0" bottom="18.0" left="22.0" />
+                     </padding>
+                     <children>
+                        <VBox spacing="2.0" minWidth="-Infinity">
+                           <children>
+                              <Label text="Συνολικό Κόστος" style="-fx-text-fill: #94A3B8; -fx-font-size: 11px;" />
+                              <Label fx:id="totalPriceLbl" text="0,00 €" style="-fx-text-fill: #FFFFFF; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                           </children>
+                        </VBox>
+                        <VBox spacing="2.0" minWidth="-Infinity">
+                           <children>
+                              <Label text="Εκτιμώμενη Κατανάλωση" style="-fx-text-fill: #94A3B8; -fx-font-size: 11px;" />
+                              <Label fx:id="totalWattLbl" text="~0 W" style="-fx-text-fill: #38BDF8; -fx-font-size: 17px; -fx-font-weight: bold;" />
+                           </children>
+                        </VBox>
+
+                        <Region HBox.hgrow="ALWAYS" />
+
+                        <Button fx:id="saveBuildBtn" text="Αποθήκευση" onAction="#handleSaveBuild" minWidth="-Infinity"
+                                style="-fx-background-color: #1E293B; -fx-text-fill: #E2E8F0; -fx-font-weight: bold; -fx-padding: 10 16; -fx-background-radius: 8; -fx-border-color: #334155; -fx-border-radius: 8; -fx-cursor: hand;" />
+                        <Button fx:id="analyzeBtn" text="Αξιολόγηση Τεχνικού" onAction="#handleAnalyze" minWidth="-Infinity"
+                                style="-fx-background-color: #10B981; -fx-text-fill: #FFFFFF; -fx-font-weight: bold; -fx-padding: 10 16; -fx-background-radius: 8; -fx-cursor: hand;" />
+                        <Button fx:id="addAllBtn" text="Προσθήκη στο Καλάθι" onAction="#handleAddAllToCart" minWidth="-Infinity"
+                                styleClass="btn-primary" style="-fx-padding: 10 16; -fx-font-weight: bold; -fx-cursor: hand;" />
+                     </children>
+                  </HBox>
+
+                  <!-- TECHNICIAN REPORT -->
+                  <VBox fx:id="reportContainer" spacing="12.0" visible="false" managed="false" />
+
+                  <!-- COMPONENT SLOTS -->
+                  <VBox fx:id="slotsContainer" spacing="12.0" />
+
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
+   </content>
+</ScrollPane>

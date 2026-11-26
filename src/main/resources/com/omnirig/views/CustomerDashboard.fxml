@@ -9,52 +9,72 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
 
-<BorderPane prefHeight="750.0" prefWidth="1200.0" stylesheets="@../css/styles.css"
-            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.omnirig.controllers.CustomerDashboardController">
+<StackPane fx:id="rootStack"
+           xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.omnirig.controllers.CustomerDashboardController">
+   <children>
+      <BorderPane fx:id="mainPane" prefHeight="750.0" prefWidth="1200.0" stylesheets="@../css/styles.css">
 
-   <!-- TOP NAVBAR -->
-   <top>
-      <HBox alignment="CENTER_LEFT" styleClass="navbar">
-         <children>
-            <Label styleClass="brand-title" text="OmniRig" />
-            <TextField fx:id="searchNameField" onAction="#handleSearch" prefWidth="340.0"
-                       promptText="Αναζήτηση εξαρτήματος (π.χ. Ryzen, RTX, NZXT)..." styleClass="search-field" />
-            <Button mnemonicParsing="false" onAction="#handleSearch" styleClass="btn-primary" text="Αναζήτηση" />
-            <Region HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#handleOpenPcBuilder" styleClass="btn-builder" text="PC Builder" />
-            <Button fx:id="cartButton" mnemonicParsing="false" styleClass="btn-outline" text="Καλάθι (0)" />
-            <Button mnemonicParsing="false" onAction="#handleLogin" styleClass="btn-primary" text="Είσοδος" />
-            <Button mnemonicParsing="false" onAction="#handleRegister" styleClass="btn-outline" text="Εγγραφή" />
-         </children>
-      </HBox>
-   </top>
+      <!-- TOP NAVBAR -->
+      <top>
+         <HBox fx:id="topBar" alignment="CENTER_LEFT" styleClass="navbar">
+            <children>
+               <HBox alignment="CENTER_LEFT" spacing="8" onMouseClicked="#handleLogoClick" style="-fx-cursor: hand;">
+                  <ImageView fitHeight="36.0" preserveRatio="true" smooth="true">
+                     <image>
+                        <Image url="@../images/logo/pc.png" />
+                     </image>
+                  </ImageView>
+                  <HBox alignment="CENTER_LEFT" spacing="0">
+                     <Label text="Omni" styleClass="logo-omni" />
+                     <Label text="Rig"  styleClass="logo-rig" />
+                  </HBox>
+               </HBox>
 
-   <!-- LEFT SIDEBAR: Κατηγορίες -->
-   <left>
-      <VBox fx:id="categoryBox" prefWidth="220.0" styleClass="sidebar">
-         <children>
-            <Label styleClass="sidebar-title" text="ΚΑΤΗΓΟΡΙΕΣ" />
-         </children>
-      </VBox>
-   </left>
+               <TextField fx:id="searchNameField" onAction="#handleSearch" prefWidth="250.0"
+                        promptText="Αναζήτηση εξαρτήματος (π.χ. Ryzen, RTX, NZXT)..." styleClass="search-field" />
+               <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#handleSearch" styleClass="btn-primary" text="Αναζήτηση" />
+               <Region HBox.hgrow="ALWAYS" />
+               <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOpenPcBuilder" styleClass="btn-builder" text="PC Builder" />
+               <Button minWidth="-Infinity" fx:id="cartButton" mnemonicParsing="false" onAction="#handleOpenCart" styleClass="btn-outline" text="Καλάθι (0)" />
+               <Button fx:id="accountButton" text="Λογαριασμός" onAction="#handleAccountClick"
+               style="-fx-background-color: #1E293B; -fx-text-fill: #E2E8F0; -fx-font-weight: bold; -fx-padding: 7 14; -fx-background-radius: 8; -fx-border-color: #334155; -fx-border-radius: 8; -fx-cursor: hand;" />
+               <HBox spacing="4" alignment="CENTER_RIGHT" style="-fx-padding: 0 0 0 8;">
+                  <Button fx:id="btnMinimize" styleClass="win-btn" onAction="#handleMinimize"/>
+                  <Button fx:id="btnMaximize" styleClass="win-btn" onAction="#handleMaximize"/>
+                  <Button fx:id="btnClose"    styleClass="win-btn, win-btn-close" onAction="#handleClose"/>
+               </HBox>
+            </children>
+         </HBox>
+      </top>
 
-   <!-- CENTER: Product Grid -->
-   <center>
-      <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #F8FAFC;">
-         <content>
-            <VBox spacing="16.0">
-               <padding>
-                  <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
-               </padding>
-               <children>
-                  <Label fx:id="sectionTitle" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0F172A;"
-                         text="Όλα τα Προϊόντα" />
-                  <FlowPane fx:id="productGrid" hgap="18.0" vgap="18.0" />
-               </children>
-            </VBox>
-         </content>
-      </ScrollPane>
-   </center>
-</BorderPane>
+      <!-- CENTER: Product Grid -->
+      <center>
+         <ScrollPane fx:id="catalogScroll" fitToWidth="true" style="-fx-background-color: transparent; -fx-background: #F8FAFC;">
+            <content>
+               <VBox spacing="16.0">
+                  <padding>
+                     <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                  </padding>
+                  <children>
+                     <Label fx:id="sectionTitle" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0F172A;"
+                           text="Όλα τα Προϊόντα" />
+                     <!-- Οριζόντια Κατηγορίες (Pills) -->
+                     <FlowPane fx:id="categoryPillsBox" hgap="8.0" vgap="8.0" alignment="CENTER" />
+
+                     <!-- Δυναμική Μπάρα Φίλτρων & Ταξινόμησης -->
+                     <FlowPane fx:id="filterBarBox" hgap="10.0" vgap="8.0" alignment="TOP_CENTER"
+                     style="-fx-background-color: #FFFFFF; -fx-padding: 12 16; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
+                     <FlowPane fx:id="productGrid" hgap="20.0" vgap="20.0" alignment="TOP_CENTER" />                  </children>
+               </VBox>
+            </content>
+         </ScrollPane>
+      </center>
+   </BorderPane>
+</children>
+</StackPane>

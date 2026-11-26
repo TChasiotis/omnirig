@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane fitToWidth="true"
+            vbarPolicy="ALWAYS"
+            style="-fx-background-color: transparent; -fx-background: #F8FAFC;"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.omnirig.controllers.CheckoutController">
+   <content>
+      <StackPane alignment="TOP_CENTER" style="-fx-background-color: #F8FAFC;">
+         <children>
+            <VBox maxWidth="980.0" spacing="20.0">
+               <padding>
+                  <Insets top="24.0" right="32.0" bottom="40.0" left="32.0" />
+               </padding>
+               <children>
+
+                  <!-- HEADER -->
+                  <HBox alignment="CENTER_LEFT" spacing="16.0">
+                     <children>
+                        <Button text="←  Πίσω στο Καλάθι" onAction="#handleBackToCart"
+                                style="-fx-background-color: #FFFFFF; -fx-text-fill: #334155; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 8; -fx-border-color: #E2E8F0; -fx-border-radius: 8; -fx-cursor: hand;" />
+                        <Label text="Ολοκλήρωση Παραγγελίας (Checkout)"
+                               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="modeBadgeLbl" text="Επισκέπτης"
+                               style="-fx-background-color: #E0F2FE; -fx-text-fill: #0369A1; -fx-font-weight: bold; -fx-padding: 5 12; -fx-background-radius: 20; -fx-font-size: 12px;" />
+                     </children>
+                  </HBox>
+
+                  <HBox spacing="24.0" alignment="TOP_LEFT">
+                     <children>
+                        <!-- ΑΡΙΣΤΕΡΑ: ΦΟΡΜΑ CHECKOUT -->
+                        <VBox spacing="18.0" HBox.hgrow="ALWAYS">
+                           <children>
+
+                              <!-- 1. Στοιχεία Επικοινωνίας -->
+                              <VBox spacing="12.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;">
+                                 <padding><Insets top="18" right="20" bottom="18" left="20" /></padding>
+                                 <Label text="1. Στοιχεία Παραλήπτη" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" />
+                                 <GridPane hgap="12.0" vgap="10.0">
+                                    <columnConstraints>
+                                       <ColumnConstraints percentWidth="50" />
+                                       <ColumnConstraints percentWidth="50" />
+                                    </columnConstraints>
+                                    <TextField fx:id="firstNameField" promptText="Όνομα *" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <TextField fx:id="lastNameField" promptText="Επώνυμο *" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                    <TextField fx:id="emailField" promptText="Email *" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <TextField fx:id="phoneField" promptText="Τηλέφωνο *" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                 </GridPane>
+                              </VBox>
+
+                              <!-- 2. Διεύθυνση Αποστολής & Χρέωσης -->
+                              <VBox spacing="12.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;">
+                                 <padding><Insets top="18" right="20" bottom="18" left="20" /></padding>
+                                 <Label text="2. Διεύθυνση Αποστολής" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" />
+                                 <GridPane hgap="12.0" vgap="10.0">
+                                    <columnConstraints>
+                                       <ColumnConstraints percentWidth="50" />
+                                       <ColumnConstraints percentWidth="30" />
+                                       <ColumnConstraints percentWidth="20" />
+                                    </columnConstraints>
+                                    <TextField fx:id="shipAddressField" promptText="Οδός &amp; Αριθμός *" GridPane.columnIndex="0" />
+                                    <TextField fx:id="shipCityField" promptText="Πόλη *" GridPane.columnIndex="1" />
+                                    <TextField fx:id="shipZipField" promptText="Τ.Κ. *" GridPane.columnIndex="2" />
+                                 </GridPane>
+
+                                 <CheckBox fx:id="sameAsShippingCheck" text="Η διεύθυνση χρέωσης είναι ίδια με τη διεύθυνση αποστολής"
+                                           selected="true" onAction="#handleToggleBilling"
+                                           style="-fx-text-fill: #334155; -fx-font-weight: bold; -fx-padding: 6 0 0 0;" />
+
+                                 <!-- Πεδία Χρέωσης (κρύβονται όταν είναι τσεκαρισμένο) -->
+                                 <VBox fx:id="billingBox" spacing="10.0" visible="false" managed="false">
+                                    <Separator />
+                                    <Label text="Διεύθυνση Χρέωσης" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" />
+                                    <GridPane hgap="12.0" vgap="10.0">
+                                       <columnConstraints>
+                                          <ColumnConstraints percentWidth="50" />
+                                          <ColumnConstraints percentWidth="30" />
+                                          <ColumnConstraints percentWidth="20" />
+                                       </columnConstraints>
+                                       <TextField fx:id="billAddressField" promptText="Οδός &amp; Αριθμός Χρέωσης *" GridPane.columnIndex="0" />
+                                       <TextField fx:id="billCityField" promptText="Πόλη Χρέωσης *" GridPane.columnIndex="1" />
+                                       <TextField fx:id="billZipField" promptText="Τ.Κ. Χρέωσης *" GridPane.columnIndex="2" />
+                                    </GridPane>
+                                 </VBox>
+                              </VBox>
+
+                              <!-- 3. Αποστολή, Πληρωμή & Παραστατικό -->
+                              <VBox spacing="12.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;">
+                                 <padding><Insets top="18" right="20" bottom="18" left="20" /></padding>
+                                 <Label text="3. Αποστολή &amp; Πληρωμή" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" />
+
+                                 <HBox spacing="20.0">
+                                    <RadioButton fx:id="shipCourierRadio" text="Courier (4,90 €)" selected="true" onAction="#recalculateTotals" />
+                                    <RadioButton fx:id="shipPickupRadio" text="Παραλαβή από κατάστημα (Δωρεάν)" onAction="#recalculateTotals" />
+                                 </HBox>
+
+                                 <Separator />
+
+                                 <HBox spacing="20.0">
+                                    <RadioButton fx:id="payCardRadio" text="Κάρτα (Stripe)" selected="true" onAction="#handlePaymentChanged" />
+                                    <RadioButton fx:id="payCodRadio" text="Αντικαταβολή (+2,00 €)" onAction="#handlePaymentChanged" />
+                                    <RadioButton fx:id="payBankRadio" text="Τραπεζική Κατάθεση" onAction="#handlePaymentChanged" />
+                                 </HBox>
+
+                                 <!-- Stripe Info Banner -->
+                                 <HBox fx:id="stripeInfoBox" alignment="CENTER_LEFT" spacing="10.0"
+                                       style="-fx-background-color: #EEF2FF; -fx-padding: 10 14; -fx-background-radius: 8; -fx-border-color: #C7D2FE; -fx-border-radius: 8;">
+                                    <Label text="Με την ολοκλήρωση της παραγγελίας θα μεταφερθείς στο ασφαλές περιβάλλον πληρωμής της Stripe."
+                                           wrapText="true" style="-fx-text-fill: #3730A3; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                                 </HBox>
+
+                                 <Separator />
+
+                                 <HBox spacing="20.0" alignment="CENTER_LEFT">
+                                    <Label text="Παραστατικό:" style="-fx-font-weight: bold; -fx-text-fill: #334155;" />
+                                    <RadioButton fx:id="receiptRadio" text="Απόδειξη Λιανικής" selected="true" onAction="#handleInvoiceToggle" />
+                                    <RadioButton fx:id="invoiceRadio" text="Τιμολόγιο" onAction="#handleInvoiceToggle" />
+                                 </HBox>
+
+                                 <HBox fx:id="invoiceBox" spacing="12.0" visible="false" managed="false">
+                                    <TextField fx:id="afmField" promptText="ΑΦΜ *" HBox.hgrow="ALWAYS" />
+                                    <TextField fx:id="doyField" promptText="ΔΟΥ *" HBox.hgrow="ALWAYS" />
+                                    <TextField fx:id="companyField" promptText="Επωνυμία Εταιρείας *" HBox.hgrow="ALWAYS" />
+                                 </HBox>
+
+                                 <TextArea fx:id="notesArea" promptText="Σημειώσεις παραγγελίας (π.χ. όροφος, ώρες παράδοσης)..." prefRowCount="2" wrapText="true" />
+                              </VBox>
+
+                              <Label fx:id="errorLbl" style="-fx-text-fill: #DC2626; -fx-font-weight: bold;" visible="false" managed="false" />
+                           </children>
+                        </VBox>
+
+                        <!-- ΔΕΞΙΑ: ΣΥΝΟΨΗ -->
+                        <VBox prefWidth="310.0" minWidth="310.0" spacing="12.0"
+                              style="-fx-background-color: #FFFFFF; -fx-background-radius: 14; -fx-border-color: #E2E8F0; -fx-border-radius: 14;">
+                           <padding><Insets top="20" right="20" bottom="20" left="20" /></padding>
+                           <Label text="Σύνοψη Παραγγελίας" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" />
+                           <Separator />
+                           <VBox fx:id="orderItemsMiniList" spacing="6.0" />
+                           <Separator />
+                           <HBox>
+                              <Label text="Υποσύνολο" style="-fx-text-fill: #64748B;" />
+                              <Region HBox.hgrow="ALWAYS" />
+                              <Label fx:id="subLbl" text="0,00 €" style="-fx-font-weight: bold;" />
+                           </HBox>
+                           <HBox>
+                              <Label text="Μεταφορικά / Αντικαταβολή" style="-fx-text-fill: #64748B;" />
+                              <Region HBox.hgrow="ALWAYS" />
+                              <Label fx:id="extraLbl" text="0,00 €" style="-fx-font-weight: bold;" />
+                           </HBox>
+                           <Separator />
+                           <HBox alignment="CENTER_LEFT">
+                              <Label text="Τελικό Ποσό" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                              <Region HBox.hgrow="ALWAYS" />
+                              <Label fx:id="grandTotalLbl" text="0,00 €" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2563EB;" />
+                           </HBox>
+                           <Button text="Ολοκλήρωση Παραγγελίας" maxWidth="Infinity"
+                                   onAction="#handleSubmitOrder" styleClass="btn-builder"
+                                   style="-fx-padding: 12 16; -fx-font-size: 14px;" />
+                        </VBox>
+                     </children>
+                  </HBox>
+
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
+   </content>
+</ScrollPane>
